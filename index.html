@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tetris</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <style>
+    .content {
+          max-width: 500px;
+          margin: auto;
+        }
+    </style>
+
+</style>
+</head>
+<body>
+
+<h1 class="content">My Tetris Game</h1>
+</br>
+<h3 class="content">A - Left , W - Rotate , S - Down , D - Right</h3>
+<br>
+<div id="gamediv" class="content"></div>
+<script>
+let pressed_key='';
+var interval = 2000;  // 1000 = 1 second, 3000 = 3 seconds
+
+let canvas=null;
+let tetromino=null;
+let board=null;
+
+function doAjax() {
+            $.ajax({
+                async: true,
+				data:{
+                    data: "test",
+                    canvas : canvas,
+                    tetromino: tetromino,
+                    board: board,
+                    key: pressed_key,
+
+                },
+                dataType: "html",
+                success: function(data, textStatus) {
+                   
+                    pressed_key='';
+                    //console.log(data);
+                    let matrix='';
+                   if(data.includes('"canvas":null'))
+                   {
+                      document.getElementById("gamediv").innerHTML = "</br></br> <h1>Game Over!!!</h1>";
+                   }
+
+                   else
+                    {
+                         tetromino=JSON.parse(data)["tetromino"];
+                         canvas=JSON.parse(data)["canvas"];
+                         board=JSON.parse(data)["board"];
+                         canvas.forEach(element =>  matrix += element.toString().replaceAll(",","___").replaceAll("0","[ ]")+"</br>");
+                         document.getElementById("gamediv").innerHTML = matrix;
+                 }
+                   //console.log(data);
+                },
+                type:"POST",
+                url:"http://localhost:8000"
+            });
+            return false;
+        }
+setInterval(doAjax, interval); 
+
+
+document.onkeypress = function(evt) {
+    evt = evt || window.event;
+    var charCode = evt.keyCode || evt.which;
+    var charStr = String.fromCharCode(charCode);
+    pressed_key=charStr;
+    doAjax();
+    //
+    // keys - >  A,W,S,D
+    //
+    
+};
+</script>
+</body>
+</html>
